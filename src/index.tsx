@@ -1,10 +1,12 @@
 import "./styles.scss";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Machine, assign, send, State } from "xstate";
+import { Machine, assign, send, State, actions } from "xstate";
 import { useMachine, asEffect } from "@xstate/react";
 import { inspect } from "@xstate/inspect";
-import { dmMachine } from "./dmAppointment";
+import { dmMachine } from "./dmAppointmentPlus";
+//import { dmMachine } from "./dmSmartHome";
+//import { cancel } from "xstate/lib/actionTypes";
 
 
 inspect({
@@ -35,6 +37,7 @@ const machine = Machine<SDSContext, any, SDSEvent>({
                     }
                 },
                 recognising: {
+                    initial: 'progress',
                     entry: 'recStart',
                     exit: 'recStop',
                     on: {
@@ -43,9 +46,12 @@ const machine = Machine<SDSContext, any, SDSEvent>({
                                 assign((_context, event) => { return { recResult: event.value } })],
                             target: '.match'
                         },
-                        RECOGNISED: 'idle'
+                        RECOGNISED: { target: 'idle', actions: 'cancel'},
+                        MAXSPEECH: 'idle',
                     },
                     states: {
+                        progress: {
+                        },
                         match: {
                             entry: send('RECOGNISED'),
                         },
@@ -161,18 +167,14 @@ function App() {
 
 
 
-
-
-
-
 /* RASA API
  *  */
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
-const rasaurl = 'https://assignment2nlu.herokuapp.com/model/parse'
+const rasaurl = 'https://rasa-nlu-api-00.herokuapp.com/model/parse'
 const nluRequest = (text: string) =>
     fetch(new Request(proxyurl + rasaurl, {
         method: 'POST',
-        headers: { 'Origin': 'http://localhost:3000/react-xstate-colourchanger' }, // only required with proxy
+        headers: { 'Origin': 'http://maraev.me' }, // only required with proxy
         body: `{"text": "${text}"}`
     }))
         .then(data => data.json());

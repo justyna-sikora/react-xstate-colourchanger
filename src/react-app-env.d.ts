@@ -11,12 +11,14 @@ interface SDSContext {
     time: string,
     intentbest: any,
     query: any,
+    count: any,
    
 
 }
 
 type SDSEvent =
     | { type: 'CLICK' }
+    | { type: 'MAXSPEECH' }
     | { type: 'RECOGNISED' }
     | { type: 'ASRRESULT', value: string }
     | { type: 'ENDSPEECH' }
